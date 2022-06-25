@@ -18,7 +18,7 @@ import (
 func GetUserController(e *echo.Group) {
 	g := e.Group("/user")
 	g.GET("", GetUsers)
-	g.POST("/user", PostUser)
+	g.POST("/user", CreateUser)
 	g.DELETE("/:id", DeleteUser)
 }
 
@@ -45,7 +45,7 @@ func GetUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
-func PostUser(c echo.Context) error {
+func CreateUser(c echo.Context) error {
 	var users []models.User
 
 	result := database.GetDatabase().Find(&users)

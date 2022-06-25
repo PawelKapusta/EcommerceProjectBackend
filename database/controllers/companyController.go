@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const CompanyNotFoundException = "Company not found"
+
 func GetCompanyController(e *echo.Group) {
 	g := e.Group("/company")
 	g.GET("", GetCompanies)
@@ -21,7 +23,7 @@ func GetCompanies(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&companies)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Companies not found")
+		return c.String(http.StatusNotFound, CompanyNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, companies)
@@ -33,7 +35,7 @@ func GetCompany(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&company, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Company not found")
+		return c.String(http.StatusNotFound, CompanyNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, company)
@@ -58,7 +60,7 @@ func UpdateCompany(c echo.Context) error {
 	var company models.Company
 	result := database.GetDatabase().Find(&company, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Company not found")
+		return c.String(http.StatusNotFound, CompanyNotFoundException)
 	}
 
 	values := new(models.Company)

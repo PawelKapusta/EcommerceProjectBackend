@@ -39,7 +39,8 @@ func GetOrderProducts(c echo.Context) error {
 }
 
 func PostOrderProduct(name string, price float32, description string,
-	categoryId uint, companyId uint, imageUrl string, orderId string, quantity int) models.OrderProduct {
+	categoryId uint, companyId uint, imageUrl string, orderId string,
+	quantity int) models.OrderProduct {
 	product := new(models.OrderProduct)
 	product.Name = name
 	product.Price = price

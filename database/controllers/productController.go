@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const ProductNotFoundException = "Product not found"
+
 func GetProductController(e *echo.Group) {
 	g := e.Group("/product")
 	g.GET("", GetProducts)
@@ -21,7 +23,7 @@ func GetProducts(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&products)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Products not found")
+		return c.String(http.StatusNotFound, ProductNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, products)
@@ -33,7 +35,7 @@ func GetProduct(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&product, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Product not found")
+		return c.String(http.StatusNotFound, ProductNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, product)
@@ -71,7 +73,7 @@ func UpdateProduct(c echo.Context) error {
 	var product models.Product
 	result := database.GetDatabase().Find(&product, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Product not found")
+		return c.String(http.StatusNotFound, ProductNotFoundException)
 	}
 
 	values := new(models.Product)
