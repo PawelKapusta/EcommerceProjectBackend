@@ -3,7 +3,6 @@ package controllers
 import (
 	"backend/database"
 	"backend/database/models"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
@@ -54,15 +53,22 @@ func PostOrder(c echo.Context) error {
 	}
 
 	allItems := order.Items
-	fmt.Println("order id", order.ID)
+
 	for i := 0; i < len(allItems); i++ {
-		fmt.Printf("order: %T\n", order.ID)
 		product, err := GetProductByID(allItems[i].ProductID)
 		if err != nil {
 			return c.String(http.StatusBadRequest, "Invalid body "+err.Error())
 		}
-		PostOrderProduct(product.Name, product.Price, product.Description, product.CategoryID,
-			product.CompanyID, product.ImageUrl, strconv.FormatUint(uint64(order.ID), 10), allItems[i].Quantity)
+		var parameters models.OrderProduct
+		parameters.Name = product.Name
+		parameters.Price = product.Price
+		parameters.Description = product.Description
+		parameters.CategoryID = product.CategoryID
+		parameters.CompanyID = product.CompanyID
+		parameters.ImageUrl = product.ImageUrl
+		parameters.OrderID = strconv.FormatUint(uint64(order.ID), 10)
+		parameters.Quantity = allItems[i].Quantity
+		PostOrderProduct(parameters)
 
 	}
 

@@ -38,18 +38,16 @@ func GetOrderProducts(c echo.Context) error {
 	return c.JSON(http.StatusOK, orderProducts)
 }
 
-func PostOrderProduct(name string, price float32, description string,
-	categoryId uint, companyId uint, imageUrl string, orderId string,
-	quantity int) models.OrderProduct {
+func PostOrderProduct(parameters models.OrderProduct) models.OrderProduct {
 	product := new(models.OrderProduct)
-	product.Name = name
-	product.Price = price
-	product.Description = description
-	product.CategoryID = categoryId
-	product.CompanyID = companyId
-	product.ImageUrl = imageUrl
-	product.OrderID = orderId
-	product.Quantity = quantity
+	product.Name = parameters.Name
+	product.Price = parameters.Price
+	product.Description = parameters.Description
+	product.CategoryID = parameters.CategoryID
+	product.CompanyID = parameters.CompanyID
+	product.ImageUrl = parameters.ImageUrl
+	product.OrderID = parameters.OrderID
+	product.Quantity = parameters.Quantity
 	database.GetDatabase().Create(product)
 
 	return *product
