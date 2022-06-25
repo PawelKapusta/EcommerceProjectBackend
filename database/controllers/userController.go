@@ -5,7 +5,6 @@ import (
 	"backend/database/models"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
@@ -46,14 +45,19 @@ func GetUsers(c echo.Context) error {
 }
 
 func CreateUser(c echo.Context) error {
-	var users []models.User
+	var user models.User
 
-	result := database.GetDatabase().Find(&users)
-	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Users not found")
+	err := c.Bind(user)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid body "+err.Error())
 	}
 
-	return c.JSON(http.StatusOK, users)
+	result := database.GetDatabase().Create(user)
+	if result.Error != nil {
+		return c.String(http.StatusBadRequest, "Database error "+result.Error.Error())
+	}
+
+	return c.JSON(http.StatusOK, user)
 }
 
 func GetUser(email string, service string) models.User {
@@ -72,7 +76,6 @@ func FindUser(email string, service string) bool {
 }
 
 func AddUserFromService(name string, surname string, username string, service string, email string, password string, token oauth2.Token) models.User {
-	fmt.Println(email, service, token)
 	user := new(models.User)
 	user.Name = name
 	user.Surname = surname
