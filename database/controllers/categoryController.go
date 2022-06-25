@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const CategoryNotFoundException = "Category not found"
+
 func GetCategoryController(e *echo.Group) {
 	g := e.Group("/category")
 	g.GET("", GetCategories)
@@ -20,7 +22,7 @@ func GetCategories(c echo.Context) error { // c.Request().Host
 	var categories []models.Category
 	result := database.GetDatabase().Find(&categories)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Category not found")
+		return c.String(http.StatusNotFound, CategoryNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, categories)
@@ -33,7 +35,7 @@ func GetCategory(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&category, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Category not found")
+		return c.String(http.StatusNotFound, CategoryNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, category)
@@ -60,7 +62,7 @@ func UpdateCategory(c echo.Context) error {
 	var category models.Category
 	result := database.GetDatabase().Find(&category, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Category not found")
+		return c.String(http.StatusNotFound, CategoryNotFoundException)
 	}
 
 	values := new(models.Category)

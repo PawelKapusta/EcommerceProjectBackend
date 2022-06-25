@@ -56,7 +56,7 @@ func main() {
 	})
 
 	g := e.Group("/api/v1")
-	
+
 	controllers.GetCategoryController(g)
 	controllers.GetCompanyController(g)
 	controllers.GetProductController(g)
