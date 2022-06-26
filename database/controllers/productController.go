@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/database/authentication"
 	"backend/database/models"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 )
 
@@ -13,9 +15,9 @@ func GetProductController(e *echo.Group) {
 	g := e.Group("/product")
 	g.GET("", GetProducts)
 	g.GET("/:id", GetProduct)
-	g.POST("", PostProduct)
-	g.PUT("/:id", UpdateProduct)
-	g.DELETE("/:id", DeleteProduct)
+	g.POST("", PostProduct, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+	g.PUT("/:id", UpdateProduct, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+	g.DELETE("/:id", DeleteProduct, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
 }
 
 func GetProducts(c echo.Context) error {

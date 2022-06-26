@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/database/authentication"
 	"backend/database/models"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 	"strconv"
 )
@@ -11,8 +13,8 @@ import (
 func GetOrderController(e *echo.Group) {
 	g := e.Group("/order")
 	g.GET("", GetOrders)
-	g.GET("/:id", GetOrder)
-	g.POST("", PostOrder)
+	g.GET("/:id", GetOrder, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+	g.POST("", PostOrder, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
 }
 
 func GetOrders(c echo.Context) error {

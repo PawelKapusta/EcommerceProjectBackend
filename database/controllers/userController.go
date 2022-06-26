@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/database/authentication"
 	"backend/database/models"
 	"context"
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
@@ -17,8 +19,31 @@ import (
 func GetUserController(e *echo.Group) {
 	g := e.Group("/user")
 	g.GET("", GetUsers)
-	g.POST("/user", CreateUser)
-	g.DELETE("/:id", DeleteUser)
+	g.POST("/login", login)
+	g.POST("/register", CreateUser)
+	g.DELETE("/:id", DeleteUser, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+}
+
+func login(c echo.Context) error {
+	var user models.User
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+
+	result := database.GetDatabase().Find(&user, "Username = ? AND Password = ?", username, password)
+	if result.Error != nil {
+		return c.String(http.StatusBadRequest, "Database error "+result.Error.Error())
+	}
+
+	t, err := authentication.CreateToken(user)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": t,
+		"user":  user,
+	})
 }
 
 type UserInfo struct {
@@ -45,9 +70,10 @@ func GetUsers(c echo.Context) error {
 }
 
 func CreateUser(c echo.Context) error {
-	var user models.User
+	user := new(models.User)
 
 	err := c.Bind(user)
+
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Invalid body "+err.Error())
 	}
@@ -162,5 +188,5 @@ func DeleteUser(c echo.Context) error {
 		return c.String(http.StatusNotFound, "User deleted")
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "item deleted"})
+	return c.JSON(http.StatusOK, map[string]string{"message": "User deleted"})
 }

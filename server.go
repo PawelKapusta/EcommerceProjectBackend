@@ -33,8 +33,8 @@ func main() {
 		ClientID:     os.Getenv("GOOGLE_CLIENTID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENTKEY"),
 		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
+			"https://www.googleapis.com/authentication/userinfo.email",
+			"https://www.googleapis.com/authentication/userinfo.profile",
 			"openid",
 		},
 		Endpoint: google.Endpoint,
@@ -44,7 +44,8 @@ func main() {
 	database.InitDefaultDatabase()
 
 	e := echo.New()
-
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"https://front-ebiznes.azurewebsites.net", "http://localhost:3000"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowOrigin, echo.HeaderAccessControlAllowCredentials},
@@ -64,12 +65,12 @@ func main() {
 	controllers.GetOrderController(g)
 	controllers.GetOrderProductController(g)
 
-	e.GET("/api/v1/auth/github", func(c echo.Context) error {
+	e.GET("/api/v1/authentication/github", func(c echo.Context) error {
 		url := controllers.GetLoginURL(githubConfig)
 		return c.JSON(http.StatusOK, map[string]string{"url": url})
 	})
 
-	e.GET("/auth/github/callback", func(c echo.Context) error {
+	e.GET("/authentication/github/callback", func(c echo.Context) error {
 		userToken := controllers.GetTokenFromWeb(githubConfig, c.QueryParam("code"))
 		userEmail, username, error := controllers.GetUserInfoFromGithub(githubConfig.Client(context.Background(), userToken))
 		if error != nil {
@@ -82,16 +83,16 @@ func main() {
 		}
 		u := controllers.GetUser(userEmail, "github")
 
-		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/github/"+u.GoToken+"&"+u.Email)
+		c.Redirect(http.StatusFound, "http://localhost:3000/login/authentication/github/"+u.GoToken+"&"+u.Email)
 		return c.JSON(http.StatusOK, map[string]string{"token": userToken.AccessToken})
 	})
 
-	e.GET("/api/v1/auth/google", func(c echo.Context) error {
+	e.GET("/api/v1/authentication/google", func(c echo.Context) error {
 		url := controllers.GetLoginURL(googleConfig)
 		return c.JSON(http.StatusOK, map[string]string{"url": url})
 	})
 
-	e.GET("/auth/google/callback", func(c echo.Context) error {
+	e.GET("/authentication/google/callback", func(c echo.Context) error {
 		userToken := controllers.GetTokenFromWeb(googleConfig, c.QueryParam("code"))
 		userInfo, error := controllers.GetUserInfoFromGoogle(googleConfig.Client(context.Background(), userToken))
 
@@ -105,7 +106,7 @@ func main() {
 		}
 		user := controllers.GetUser(userInfo.Email, "google")
 
-		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/google/"+user.GoToken+"&"+user.Email)
+		c.Redirect(http.StatusFound, "http://localhost:3000/login/authentication/google/"+user.GoToken+"&"+user.Email)
 
 		return c.JSON(http.StatusOK, map[string]string{"token": userToken.AccessToken})
 	})

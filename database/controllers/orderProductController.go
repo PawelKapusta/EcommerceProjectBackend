@@ -2,15 +2,17 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/database/authentication"
 	"backend/database/models"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 )
 
 func GetOrderProductController(e *echo.Group) {
 	g := e.Group("/orderproduct")
-	g.GET("", GetOrdersProducts)
-	g.GET("/:orderId", GetOrderProducts)
+	g.GET("", GetOrdersProducts, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+	g.GET("/:orderId", GetOrderProducts, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
 }
 
 func GetOrdersProducts(c echo.Context) error {

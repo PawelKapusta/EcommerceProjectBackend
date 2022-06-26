@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/database/authentication"
 	"backend/database/models"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 )
 
@@ -13,9 +15,9 @@ func GetCategoryController(e *echo.Group) {
 	g := e.Group("/category")
 	g.GET("", GetCategories)
 	g.GET("/:id", GetCategory)
-	g.POST("", CreateCategory)
-	g.PUT("/:id", UpdateCategory)
-	g.DELETE("/:id", DeleteCategory)
+	g.POST("", CreateCategory, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+	g.PUT("/:id", UpdateCategory, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+	g.DELETE("/:id", DeleteCategory, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
 }
 
 func GetCategories(c echo.Context) error { // c.Request().Host
