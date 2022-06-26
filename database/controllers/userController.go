@@ -29,21 +29,23 @@ func login(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 
-	result := database.GetDatabase().Find(&user, "Username = ? AND Password = ?", username, password)
+	result := database.GetDatabase().First(&user, "Username = ? AND Password = ?", username, password)
 	if result.Error != nil {
-		return c.String(http.StatusBadRequest, "Database error "+result.Error.Error())
+		return c.JSON(http.StatusNotFound, echo.Map{
+			"code":    404,
+			"message": "Database error " + result.Error.Error(),
+		})
+	} else {
+		t, err := authentication.CreateToken(user)
+
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, echo.Map{
+			"token": t,
+			"user":  user,
+		})
 	}
-
-	t, err := authentication.CreateToken(user)
-
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-		"user":  user,
-	})
 }
 
 type UserInfo struct {
