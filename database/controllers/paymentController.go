@@ -32,7 +32,6 @@ func CalculateOrderCost(orderID uint) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	fmt.Print(order, "xd")
 
 	amount := order.TotalPrice + 220.00
 
