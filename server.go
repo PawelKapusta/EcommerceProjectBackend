@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/database"
+	"backend/database/authentication"
 	"backend/database/controllers"
 	"context"
 	"github.com/joho/godotenv"
@@ -41,15 +42,15 @@ func main() {
 	}
 
 	database.Connect()
-	// database.InitDefaultDatabase()
+	database.InitDefaultDatabase()
 
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"https://front-ebiznes.azurewebsites.net", "http://localhost:3000"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowOrigin, echo.HeaderAccessControlAllowCredentials},
-		AllowMethods: []string{http.MethodGet, http.MethodPost},
+		AllowOrigins: []string{"https://front-ebiznes.azurewebsites.net", "http://localhost:3000", "http://localhost:8080"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
 	}))
 
 	e.GET("/api/v1", func(c echo.Context) error {
@@ -64,6 +65,7 @@ func main() {
 	controllers.GetUserController(g)
 	controllers.GetOrderController(g)
 	controllers.GetOrderProductController(g)
+	controllers.GetPaymentController(g)
 
 	e.GET("/api/v1/auth/github", func(c echo.Context) error {
 		url := controllers.GetLoginURL(githubConfig)
@@ -82,8 +84,13 @@ func main() {
 			controllers.AddUserFromService("GithubName", "GithubSurname", username, "github", userEmail, username+userEmail, *userToken)
 		}
 		u := controllers.GetUser(userEmail, "github")
+		t, err := authentication.CreateToken(u)
 
-		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/github/"+u.GoToken+"&"+u.Email)
+		if err != nil {
+			return err
+		}
+
+		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/github/"+t+"&"+u.Email)
 		return c.JSON(http.StatusOK, map[string]string{"token": userToken.AccessToken})
 	})
 
@@ -105,10 +112,17 @@ func main() {
 			controllers.AddUserFromService(userInfo.GivenName, userInfo.FamilyName, userInfo.Name, "google", userInfo.Email, userInfo.Sub, *userToken)
 		}
 		user := controllers.GetUser(userInfo.Email, "google")
+		t, err := authentication.CreateToken(user)
 
-		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/google/"+user.GoToken+"&"+user.Email)
+		if err != nil {
+			return err
+		}
+		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/google/"+t+"&"+user.Email)
 
-		return c.JSON(http.StatusOK, map[string]string{"token": userToken.AccessToken})
+		return c.JSON(http.StatusOK, echo.Map{
+			"token": t,
+			"user":  user,
+		})
 	})
 
 	e.Logger.Fatal(e.Start(":8080"))

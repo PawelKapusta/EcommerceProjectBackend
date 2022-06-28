@@ -80,11 +80,32 @@ func CreateUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Invalid body "+err.Error())
 	}
 
-	result := database.GetDatabase().Create(user)
-	if result.Error != nil {
-		return c.String(http.StatusBadRequest, "Database error "+result.Error.Error())
+	errors := database.GetDatabase().Where("Username = ? AND Email = ?", user.Username, user.Email).Take(&user)
+
+	if errors.RowsAffected == 0 {
+		res := database.GetDatabase().Create(user)
+		if res.Error != nil {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"code":    403,
+				"message": "Database error " + res.Error.Error(),
+			})
+		}
+		t, err := authentication.CreateToken(*user)
+
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, echo.Map{
+			"token": t,
+			"user":  user,
+		})
 	}
 
+	if errors.RowsAffected > 0 {
+		return c.String(http.StatusNotFound,
+			"Database error "+errors.Error.Error(),
+		)
+	}
 	return c.JSON(http.StatusOK, user)
 }
 

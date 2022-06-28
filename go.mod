@@ -3,9 +3,11 @@ module backend
 go 1.18
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.7.2
+	github.com/stripe/stripe-go/v72 v72.116.0
 	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
 	gorm.io/driver/sqlite v1.3.4
 	gorm.io/gorm v1.23.6
@@ -13,7 +15,6 @@ require (
 
 require (
 	cloud.google.com/go v0.65.0 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

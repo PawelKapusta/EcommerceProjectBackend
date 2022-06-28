@@ -3,6 +3,7 @@ package database
 import (
 	"backend/database/models"
 	"backend/utils"
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -90,19 +91,19 @@ func addDefaultUsersToDatabase(name string, email string) {
 
 }
 
-//func InitDefaultDatabase() {
-//	productPrice := 1000.00
-//	allProducts := 1
-//	addAdminToDatabase()
-//	for i := 1; i <= 5; i++ {
-//		number := fmt.Sprint(i)
-//		addDefaultCategoriesToDatabase("Category" + number)
-//		addDefaultCompaniesToDatabase("Company" + number)
-//		for index := 1; index <= rand.Intn(10)+10; index++ {
-//			totalProductsSting := fmt.Sprint(allProducts)
-//			addDefaultProductsToDatabase("Product"+totalProductsSting, float32(productPrice), uint(i), uint(i), "https://softwaremathematics.com/wp-content/uploads/2021/02/ultimate-guide-to-your-product-launch.jpg")
-//			allProducts++
-//		}
-//		addDefaultUsersToDatabase("test"+number, "user"+number+"@app.com")
-//	}
-//}
+func InitDefaultDatabase() {
+	productPrice := 10.00
+	allProducts := 1
+	addAdminToDatabase()
+	for i := 1; i <= 5; i++ {
+		number := fmt.Sprint(i)
+		addDefaultCategoriesToDatabase("Category" + number)
+		addDefaultCompaniesToDatabase("Company" + number)
+		for index := 1; index <= rand.Intn(10)+10; index++ {
+			totalProductsSting := fmt.Sprint(allProducts)
+			addDefaultProductsToDatabase("Product"+totalProductsSting, float32(productPrice), uint(i), uint(i), "https://softwaremathematics.com/wp-content/uploads/2021/02/ultimate-guide-to-your-product-launch.jpg")
+			allProducts++
+		}
+		addDefaultUsersToDatabase("test"+number, "user"+number+"@app.com")
+	}
+}

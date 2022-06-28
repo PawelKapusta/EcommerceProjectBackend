@@ -14,6 +14,7 @@ type Order struct {
 	Code       string  `json:"code"`
 	City       string  `json:"city"`
 	Phone      string  `json:"phone"`
+	Email      string  `json:email"`
 	IsPaid     bool    `json:"isPaid"`
 	PaymentID  string  `json:"paymentID"`
 	IsFinished bool    `json:"isFinished"`

@@ -35,12 +35,15 @@ func GetProduct(c echo.Context) error {
 	id := c.Param("id")
 	var product models.Product
 
-	result := database.GetDatabase().Find(&product, id)
+	result := database.GetDatabase().First(&product, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, ProductNotFoundException)
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"code":    403,
+			"message": ProductNotFoundException,
+		})
+	} else {
+		return c.JSON(http.StatusOK, product)
 	}
-
-	return c.JSON(http.StatusOK, product)
 }
 
 func GetProductByID(id uint) (models.Product, error) {
