@@ -36,7 +36,8 @@ func GetDatabase() *gorm.DB {
 
 func addDefaultProductsToDatabase(name string, price float32, categoryId uint, companyId uint, imageUrl string) {
 	c := new(models.Product)
-	err := database.Where("ID = ?", c.ID).Take(&c)
+	err := database.Find(&c, "name = ?", name)
+
 	if err.RowsAffected == 0 {
 		database.Create(&models.Product{
 			Name:        name,
@@ -62,7 +63,7 @@ func addDefaultCategoriesToDatabase(name string) {
 
 func addDefaultCompaniesToDatabase(name string) {
 	c := new(models.Company)
-	err := database.Where("name = ?", name).Take(&c)
+	err := database.First("name = ?", name).Take(&c)
 	if err.RowsAffected == 0 {
 		database.Create(&models.Company{
 			Name:        name,
