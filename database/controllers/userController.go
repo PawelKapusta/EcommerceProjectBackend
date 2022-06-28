@@ -33,7 +33,7 @@ func login(c echo.Context) error {
 	if result.Error != nil {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"code":    404,
-			"message": "Database error " + result.Error.Error(),
+			"message": result.Error.Error(),
 		})
 	} else {
 		t, err := authentication.CreateToken(user)
@@ -87,7 +87,7 @@ func CreateUser(c echo.Context) error {
 		if res.Error != nil {
 			return c.JSON(http.StatusBadRequest, echo.Map{
 				"code":    403,
-				"message": "Database error " + res.Error.Error(),
+				"message": res.Error.Error(),
 			})
 		}
 		t, err := authentication.CreateToken(*user)
@@ -103,7 +103,7 @@ func CreateUser(c echo.Context) error {
 
 	if errors.RowsAffected > 0 {
 		return c.String(http.StatusNotFound,
-			"Database error "+errors.Error.Error(),
+			errors.Error.Error(),
 		)
 	}
 	return c.JSON(http.StatusOK, user)

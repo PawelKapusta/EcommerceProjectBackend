@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+const OrderNotFoundException = "Order not found"
+
 func GetOrderController(e *echo.Group) {
 	g := e.Group("/order")
 	g.GET("", GetOrders)
@@ -24,7 +26,7 @@ func GetOrders(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&orders)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Order not found")
+		return c.String(http.StatusNotFound, OrderNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, orders)
@@ -36,7 +38,7 @@ func GetOrder(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&order, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Order not found")
+		return c.String(http.StatusNotFound, OrderNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, order)
@@ -102,7 +104,7 @@ func CreatePaymentInformation(c echo.Context) error {
 
 	result := database.GetDatabase().Find(&order, "ID = ?", id)
 	if result == nil {
-		return c.JSON(http.StatusNotFound, "Order Not found")
+		return c.JSON(http.StatusNotFound, OrderNotFoundException)
 	}
 
 	if email != order.Email {
@@ -123,7 +125,7 @@ func DeleteOrder(c echo.Context) error {
 
 	result := database.GetDatabase().Delete(&order, id)
 	if result.Error != nil {
-		return c.String(http.StatusNotFound, "Order not found")
+		return c.String(http.StatusNotFound, OrderNotFoundException)
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Order deleted"})
