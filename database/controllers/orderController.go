@@ -16,6 +16,7 @@ func GetOrderController(e *echo.Group) {
 	g := e.Group("/order")
 	g.GET("", GetOrders)
 	g.GET("/:id", GetOrder, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+	g.GET("/user", GetOrdersOfUser, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
 	g.POST("", PostOrder, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
 	g.POST("/:id/:email/:paymentId", CreatePaymentInformation)
 	g.DELETE("/:id", DeleteOrder, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
@@ -25,6 +26,17 @@ func GetOrders(c echo.Context) error {
 	var orders []models.Order
 
 	result := database.GetDatabase().Find(&orders)
+	if result.Error != nil {
+		return c.String(http.StatusNotFound, OrderNotFoundException)
+	}
+
+	return c.JSON(http.StatusOK, orders)
+}
+
+func GetOrdersOfUser(c echo.Context) error {
+	var orders []models.Order
+	userId := c.FormValue("userId")
+	result := database.GetDatabase().Find(&orders, "user_id = ?", userId)
 	if result.Error != nil {
 		return c.String(http.StatusNotFound, OrderNotFoundException)
 	}

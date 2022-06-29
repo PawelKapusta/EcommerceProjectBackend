@@ -6,6 +6,7 @@ import (
 	"backend/database/models"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,9 +20,27 @@ import (
 func GetUserController(e *echo.Group) {
 	g := e.Group("/user")
 	g.GET("", GetUsers)
+	g.GET("/email", GetUserByEmail, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
 	g.POST("/login", login)
 	g.POST("/register", CreateUser)
 	g.DELETE("/:id", DeleteUser, middleware.JWTWithConfig(authentication.GetCustomClaimsConfig()))
+}
+
+func GetUserByEmail(c echo.Context) error {
+	var user models.User
+	email := c.FormValue("email")
+	fmt.Print(email)
+	result := database.GetDatabase().First(&user, "Email = ?", email)
+	if result.Error != nil {
+		return c.JSON(http.StatusNotFound, echo.Map{
+			"code":    404,
+			"message": result.Error.Error(),
+		})
+	} else {
+		return c.JSON(http.StatusOK, echo.Map{
+			"user": user,
+		})
+	}
 }
 
 func login(c echo.Context) error {
