@@ -48,7 +48,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"https://front-ebiznes.azurewebsites.net", "http://localhost:3000", "http://localhost:8080"},
+		AllowOrigins: []string{"https://ecommercef.azurewebsites.net", "http://localhost:3000", "http://localhost:8080"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
 	}))
@@ -90,7 +90,7 @@ func main() {
 			return err
 		}
 
-		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/github/"+t+"&"+u.Email)
+		c.Redirect(http.StatusFound, "https://ecommercef.azurewebsites.net/login/auth/github/"+t+"&"+u.Email)
 		return c.JSON(http.StatusOK, map[string]string{"token": userToken.AccessToken})
 	})
 
@@ -117,7 +117,7 @@ func main() {
 		if err != nil {
 			return err
 		}
-		c.Redirect(http.StatusFound, "http://localhost:3000/login/auth/google/"+t+"&"+user.Email)
+		c.Redirect(http.StatusFound, "https://ecommercef.azurewebsites.net/login/auth/google/"+t+"&"+user.Email)
 
 		return c.JSON(http.StatusOK, echo.Map{
 			"token": t,
